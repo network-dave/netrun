@@ -5,11 +5,11 @@ Netrun is a small tool aimed at easily interacting with network devices from the
 ## Requirements / Getting Started
 
 ```shell
-pip install scrapli
+$ pip install -r requirements.txt
 ```
 
 ```shell
-python netrun.py -u <username> -p <password> -d <device> -c <command> [...]
+$ python netrun.py -u <username> -p <password> -d <device> -c <command> [...]
 ```
 
 **Attention: at the time of this writing, a bug in the IOS-XE driver would prevent to go into enable mode. I did modify the 'base' driver's source code in order to make this work. Hopefully this should be fixed very soon.**
@@ -37,14 +37,19 @@ By default, Netrun uses the system's SSH as transport mecanism. The system and t
 ## Examples
 
 ```shell
-$ python netrun.py -d 172.16.10.10,172.16.10.11 -u id123456 -c show version
+$ python netrun.py -d 172.16.10.10,172.16.10.11 -u johndoe -c show version
 
-$ python netrun.py -D my_switches.txt -C show_commands.txt -u dpaneels -p C00lp4$$ -n -sSO ./netrun_output/
+$ python netrun.py -D my_switches.txt -C show_commands.txt -u johndoe -p C00lp4$$ -n -sSO ./netrun_output/
 ```
 
 
 ## License
 
-Author: David Paneels
+Copyright (C) 2020 David Paneels
 
-For internal use only.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+https://www.gnu.org/licenses/gpl-3.0.html
