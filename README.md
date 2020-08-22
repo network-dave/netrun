@@ -2,20 +2,21 @@
 
 Netrun is a small tool aimed at easily interacting with network devices from the command-line.
 
-## Requirements
+## Requirements / Getting Started
 
 ```shell
 pip install scrapli
 ```
 
-**Attention: at the time of this writing, a bug in the IOS-XE driver would prevent to go into enable mode. I did modify the 'base' driver's source code in order to make this work. Hopefully this should be fixed very soon.**
-
-
-## Getting started/Usage
-
 ```shell
 python netrun.py -u <username> -p <password> -d <device> -c <command> [...]
 ```
+
+**Attention: at the time of this writing, a bug in the IOS-XE driver would prevent to go into enable mode. I did modify the 'base' driver's source code in order to make this work. Hopefully this should be fixed very soon.**
+
+
+## Usage
+
 See ```netrun.py --help``` for a complete list of command-line arguments.
 
 - Devices and commands can be specified as command-line arguments or loaded from a text file.
