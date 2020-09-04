@@ -12,8 +12,6 @@ $ pip install -r requirements.txt
 $ python netrun.py -u <username> -p <password> -d <device> -c <command> [...]
 ```
 
-**Attention: at the time of this writing, a bug in the IOS-XE driver would prevent to go into enable mode. I did modify the 'base' driver's source code in order to make this work. Hopefully this should be fixed very soon.**
-
 
 ## Usage
 
@@ -24,6 +22,7 @@ See ```netrun.py --help``` for a complete list of command-line arguments.
 - If no enable password/secret is specified, the user password will be used. 
 - By default, enable mode is entered after login
 - Use '-n' to avoid going into enable mode and stay in exec mode (quicker for show commands)
+- When connecting to a device fails, it's IP address is appended to the 'netrun_failed.txt' file
 
 
 ## Device file ##

@@ -243,6 +243,8 @@ def main():
             conn.open()
         except Exception as e:
             print(f"[!] Error: {str(e)}")
+            with open("netrun_failed.txt", "a") as f:
+                f.write(ip_address + "\n")
             continue
         print(f"[+] Successfully connected and authenticated to {ip_address}")
 
