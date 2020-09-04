@@ -249,21 +249,20 @@ def main():
         # If saving is enabled, build the output path and filename
         if args.save:
             logging.info(f"[+] Setting output directory")
+            date_time = datetime.strftime(datetime.now(), "%Y-%m-%d_%Hh%Mm%S")
             if args.output_directory:
                 save_dir = args.output_directory.format(
                     date_time=date_time, 
                     ip_address=ip_address, 
-                    hostname=conn.host, 
-                    username=conn.auth_username
+                    username=args.username
                     )
                 if not os.path.exists(save_dir):
                     os.makedirs(save_dir, exist_ok=True)
             else:
                 save_dir = os.getcwd()
-            # Timestamping for filename
-            date_time = datetime.strftime(datetime.now(), "%Y-%m-%d_%Hh%Mm%S")
             filename = os.path.join(save_dir, f"netrun_output_{ip_address}_{date_time}.txt")
-            output_file_object = open(filename, "w")
+            if not args.separate_output:
+                output_file_object = open(filename, "w")
             logging.info(f"[+] Output will be saved to {filename}")
 
         # If we use autodeploy, we'll load the commands from a text file names <ip_address>_autodeploy.txt
@@ -290,11 +289,12 @@ def main():
                     )
                 output_file_object = open(filename, "w")
                 print(response.result, file=output_file_object)
+                print(f"[+] Saving output of '{c}' to {filename}")
             else:
                 print(f"\n[{now}] {ip_address}: Output of command \'{c}\' \
                     \n\n{response.result}", file=output_file_object)
-            if args.save:
-                print(f"[+] Saving output of {c} to {filename}")
+                if args.save:
+                    print(f"[+] Saving output to {filename}")
 
         # Close the output file handler and close the connection
         if output_file_object:
