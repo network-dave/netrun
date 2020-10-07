@@ -184,7 +184,7 @@ def main():
         with open(args.device_list) as f:
             content = f.readlines()
             list_ip_addresses = []
-            # Get a list of unique IP addresses (to be upgraded...)
+            # Get a list of unique IP addresses [TO BE IMPROVED]
             for line in content:
                 if not line.startswith("!") and not line.startswith("#") and line.strip():
                     for ip_address in re.findall(r"(?:\d{1,3}\.){3}\d{1,3}", line):
@@ -222,6 +222,9 @@ def main():
             logging.info(f"[+] No enable secret has been specified, using the user password")
             args.enable_password = args.password
 
+    # Registering date/time for use in filenames
+    date_time = datetime.strftime(datetime.now(), "%Y-%m-%d_%Hh%Mm%S")
+
     # Connect to each device, run the commands and print the output
     for ip_address in list_ip_addresses:
         logging.info(f"[+] Initializing network driver for {ip_address}")
@@ -237,13 +240,15 @@ def main():
                 ssh_config_file = True,
                 default_desired_privilege_level = privilege_level,
                 transport = TRANSPORT,
-                platform = "cisco_iosxe"
+                platform = "cisco_iosxe",
+                timeout_socket = 10,
+                timeout_transport = 10
                 )
             print(f"[+] Opening connection to {ip_address}")
             conn.open()
         except Exception as e:
             print(f"[!] Error: {str(e)}")
-            with open("netrun_failed.txt", "a") as f:
+            with open(f"netrun_failed_{date_time}.txt", "a") as f:
                 f.write(ip_address + "\n")
             continue
         print(f"[+] Successfully connected and authenticated to {ip_address}")
@@ -251,7 +256,6 @@ def main():
         # If saving is enabled, build the output path and filename
         if args.save:
             logging.info(f"[+] Setting output directory")
-            date_time = datetime.strftime(datetime.now(), "%Y-%m-%d_%Hh%Mm%S")
             if args.output_directory:
                 save_dir = args.output_directory.format(
                     date_time=date_time, 
@@ -287,16 +291,16 @@ def main():
                 # Note: whitespaces in the command will be replaced by dashes
                 filename = os.path.join(
                     save_dir, 
-                    f"{ip_address}_{c.replace(' ', '-')}_{date_time}.txt"
+                    f"{ip_address}_{c.replace(' ', '-')}_{now}.txt"
                     )
                 output_file_object = open(filename, "w")
                 print(response.result, file=output_file_object)
                 print(f"[+] Saving output of '{c}' to {filename}")
             else:
-                print(f"\n[{now}] {ip_address}: Output of command \'{c}\' \
-                    \n\n{response.result}", file=output_file_object)
+                print(f"[{now}] {ip_address}: Output of command \'{c}\' \
+                    \n{response.result}\n", file=output_file_object)
                 if args.save:
-                    print(f"[+] Saving output to {filename}")
+                    print(f"[+] Saving output of '{c}' to {filename}")
 
         # Close the output file handler and close the connection
         if output_file_object:

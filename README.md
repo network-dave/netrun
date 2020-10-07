@@ -23,6 +23,7 @@ See ```netrun.py --help``` for a complete list of command-line arguments.
 - By default, enable mode is entered after login
 - Use '-n' to avoid going into enable mode and stay in exec mode (quicker for show commands)
 - When connecting to a device fails, it's IP address is appended to the 'netrun_failed.txt' file
+- Timeout for socket and transport operations is set to 10 seconds
 
 
 ## Device file ##
