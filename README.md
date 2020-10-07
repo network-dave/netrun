@@ -22,13 +22,13 @@ See ```netrun.py --help``` for a complete list of command-line arguments.
 - If no enable password/secret is specified, the user password will be used. 
 - By default, enable mode is entered after login
 - Use '-n' to avoid going into enable mode and stay in exec mode (quicker for show commands)
-- When connecting to a device fails, it's IP address is appended to the 'netrun_failed.txt' file
+- When connecting to a device fails, it's IP address is appended to the 'netrun_failed_<date-time>.txt' file
 - Timeout for socket and transport operations is set to 10 seconds
 
 
 ## Device file ##
 - No hostnames, only IP addresses!
-- The file does not need to be formatted in any specific way, all IP addresses will be extracted
+- The file does not need to be formatted in any specific way, all IP addresses will be extracted (items starting with "255." will be ignored)
 
 ## SSH configuration file
 
