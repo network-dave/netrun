@@ -268,14 +268,14 @@ def main():
                 timeout_transport = 10,
                 transport_options = {"open_cmd": ["-o", "KexAlgorithms=+diffie-hellman-group1-sha1"]}
                 )
-            print(f"[+] Opening connection to {host}")
+            logging.warning(f"[+] Opening connection to {host}")
             conn.open()
         except Exception as e:
-            print(f"[!] Error: {str(e)}")
+            logging.fatal(f"[!] Error: {str(e)}")
             with open(f"netrun_failed_{date_time}.txt", "a") as f:
                 f.write(host + "\n")
             continue
-        print(f"[+] Successfully connected and authenticated to {host}")
+        logging.warning(f"[+] Successfully connected and authenticated to {host}")
 
         # If saving is enabled, build the output path and filename
         if args.save:
@@ -319,12 +319,12 @@ def main():
                     )
                 output_file_object = open(filename, "w")
                 print(response.result, file=output_file_object)
-                print(f"[+] Saving output of '{c}' to {filename}")
+                logging.warning(f"[+] Saving output of '{c}' to {filename}")
             else:
                 print(f"[{now}] {host}: Output of command \'{c}\': \
                     \n{response.result}\n", file=output_file_object)
                 if args.save:
-                    print(f"[+] Saving output of '{c}' to {filename}")
+                    logging.warning(f"[+] Saving output of '{c}' to {filename}")
 
         # Close the output file handler and close the connection
         if output_file_object:
