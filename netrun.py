@@ -13,8 +13,6 @@ Author: David Paneels
 import os
 import sys
 import argparse
-import re
-import time
 import getpass
 import logging
 from datetime import datetime
@@ -25,8 +23,6 @@ from scrapli import Scrapli
 # Used to split username/password lists
 DELIMITER = ","
 
-# Additional DNS search domain to append to hostnames if not specified
-DOMAIN = "net.scrl.local"
 
 # Define SSH transport type for Scrapli driver 
 TRANSPORT = "system"
@@ -204,11 +200,17 @@ def main():
 
     # If no username is specified, we will prompt at runtime
     if not args.username:
-        args.password = input("SSH Username: ")
+        if os.environ.get("NETRUN_USERNAME"):
+            args.username = os.environ.get("NETRUN_USERNAME")
+        else:
+            args.username = input("SSH Username: ")
 
     # If no password is specified, we will prompt at runtime
     if not args.password:
-        args.password = getpass.getpass("SSH Password: ")
+        if os.environ.get("NETRUN_PASSWORD"):
+            args.password = os.environ.get("NETRUN_PASSWORD")
+        else:
+            args.password = getpass.getpass("SSH Password: ")
 
     # Define privilege level (exec or enable mode) to use after login
     if args.no_enable:
@@ -284,10 +286,10 @@ def main():
         # Run all commands sequentially
         logging.info(f"[+] Sending commands to host")
         for c in commands:
-            now = datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M:%S")
+            now = datetime.strftime(datetime.now(), "%Y-%m-%d_%Hh%Mm%S")
             response = conn.send_command(c)
             if args.save and args.separate_output:
-                # Note: whitespaces in the command will be replaced by dashes
+                # Whitespaces in the command will be replaced by dashes
                 filename = os.path.join(
                     save_dir, 
                     f"{host}_{c.replace(' ', '-')}_{now}.txt"

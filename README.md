@@ -17,12 +17,12 @@ $ python netrun.py -u <username> -p <password> -d <device> -c <command> [...]
 
 See ```netrun.py --help``` for a complete list of command-line arguments.
 
-- Devices and commands can be specified as command-line arguments or loaded from a text file.
-- If no password is specified, it will be prompted at runtime.
-- If no enable password/secret is specified, the user password will be used. 
+- Hosts and commands can be specified at the command-line or loaded from a text file.
+- Usernames and passwords can be specified at the command line or loaded from the following environment variables: NETRUN_USERNAME, NETRUN_PASSWORD, NETRUN_ENABLE
+- If no username/passwords are specified at all, they will be prompted at runtime.
 - By default, enable mode is entered after login
 - Use '-n' to avoid going into enable mode and stay in exec mode (quicker for show commands)
-- When connecting to a device fails, it's IP address is appended to the 'netrun_failed_<date-time>.txt' file
+- When connecting to a host fails, it's hostname/IP is appended to the 'netrun_failed_<date-time>.txt' file
 - Timeout for socket and transport operations is set to 10 seconds
 
 
