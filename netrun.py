@@ -2,7 +2,7 @@
 
 '''
 
-netrun.py - Run commands on network devices from the command line
+netrun.py - Run commands on network hosts from the command line
 
 Usage: use --help for help
 
@@ -25,6 +25,9 @@ from scrapli import Scrapli
 # Used to split username/password lists
 DELIMITER = ","
 
+# Additional DNS search domain to append to hostnames if not specified
+DOMAIN = "net.scrl.local"
+
 # Define SSH transport type for Scrapli driver 
 TRANSPORT = "system"
 
@@ -37,30 +40,31 @@ def parse_arguments():
 
     # Create argument parser
     parser = argparse.ArgumentParser(
-        description="Run commands on network devices from the command-line", 
+        description="Run commands on network hosts from the command-line", 
         add_help=False
         )
 
-    # Devices arguments
-    arg_group_devices = parser.add_argument_group(
-        title="Device(s)"
+    # hosts arguments
+    arg_group_hosts = parser.add_argument_group(
+        title="host(s)"
         )
-    arg_device = arg_group_devices.add_mutually_exclusive_group(
+    arg_host = arg_group_hosts.add_mutually_exclusive_group(
         required=True
         )
-    arg_device.add_argument(
-        "-d",
-        "--device", 
-        metavar="<ipaddress>",
-        help="IP address(es) of the device(s) to connect to (multiple separated by commas)"
+    arg_host.add_argument(
+        "-h",
+        "--host", 
+        metavar="<hostname-or-ip>",
+        help="IP address(es) of the host(s) to connect to (provide multiple separated by commas)"
         )
-    arg_device.add_argument(
-        "-D",
-        "--device-list",
+    arg_host.add_argument(
+        "-H",
+        "--hosts-file",
         metavar="<filename>",
-        help="text file containing a list of IP addresses"
+        help="text file containing a list of hostnames/IP addresses"
         )
-    arg_group_devices.add_argument(
+    arg_group_hosts.add_argument(
+        "-P",
         "--port",
         help="SSH port (default=22)",
         metavar="<port>",
@@ -78,18 +82,18 @@ def parse_arguments():
         "-c",
         "--commands",
         metavar="<command>",
-        help="command(s) to execute (multiple separated by commas)",
+        help="command(s) to execute (provide multiple separated by commas)",
         nargs="*"
         )
     arg_commands.add_argument(
         "-C",
-        "--command-list",
+        "--commands-file",
         metavar="<filename>",
         help="text file containing a list of commands"
         )
     arg_commands.add_argument(
         "--autodeploy",
-        help="load commands from file <ipaddress>_autodeploy.txt for each device", 
+        help="load commands from file <host>_autodeploy.txt for each host", 
         action="store_true"
         )
 
@@ -100,8 +104,7 @@ def parse_arguments():
     arg_group_authentic.add_argument(
         "-u",
         "--username",
-        metavar="<username>",
-        required=True
+        metavar="<username>"
         )
     arg_group_authentic.add_argument(
         "-p",
@@ -128,17 +131,17 @@ def parse_arguments():
     third_arg_group.add_argument(
         "-s",
         "--save",
-        help="save the output to a text file (1 file per IP address)",
+        help="save the output to a text file (1 file per host)",
         action="store_true"
         )
     third_arg_group.add_argument(
         "-S",
         "--separate-output",
-        help="save the output of each command to a separate text file",
+        help="save the output of each command to a different text file",
         action="store_true"
         )
     third_arg_group.add_argument(
-        "-O",
+        "-o",
         "--output-directory",
         metavar="\b",
         help="path/directory where to save the output files to"
@@ -149,13 +152,11 @@ def parse_arguments():
         title="Misc"
         )
     fourth_arg_group.add_argument(
-        "-v", 
-        "--verbose", 
-        help="verbose output (useful for debbugging)", 
+        "--debug", 
+        help="show debugging output", 
         action="store_true"
         )
     fourth_arg_group.add_argument(
-        "-h",
         "--help",
         help="display this message and exit",
         action="help"
@@ -173,30 +174,23 @@ def main():
     args = parse_arguments()
 
     # Initialize logging
-    if args.verbose:
-        logging.basicConfig(format="%(message)s", level=logging.INFO)
+    if args.debug:
+        logging.basicConfig(format="%(message)s", level=logging.DEBUG)
     else:
         logging.basicConfig(format="%(message)s", level=logging.WARNING)
 
-    # Get list of devices
-    logging.info("[+] Parsing device list")
-    if args.device_list:
-        with open(args.device_list) as f:
-            content = f.readlines()
-            list_ip_addresses = []
-            # Get a list of unique IP addresses [TO BE IMPROVED]
-            for line in content:
-                if not line.startswith("!") and not line.startswith("#") and line.strip():
-                    for ip_address in re.findall(r"(?:\d{1,3}\.){3}\d{1,3}", line):
-                        if ip_address not in list_ip_addresses and not ip_address.startswith("255."):
-                            list_ip_addresses.append(ip_address)
+    # Get list of hosts from file or CLI
+    logging.info("[+] Parsing host list")
+    if args.hosts_file:
+        with open(args.hosts_file) as f:
+            list_of_hosts = f.readlines()
     else:
-        list_ip_addresses = args.device.split(",")
-    logging.info(f"[+] Found devices: {','.join(list_ip_addresses)}")
+        list_of_hosts = args.host.split(",")
+    logging.info(f"[+] Found hosts: {','.join(list_of_hosts)}")
 
     # Get commands from text file or arguments
-    if args.command_list:
-        with open(args.command_list, "r") as f:
+    if args.commands_file:
+        with open(args.commands_file, "r") as f:
             commands = [ line.rstrip() for line in f.readlines() if line.strip() ]
     elif args.autodeploy:
         # In case of autodeploy we will load the commands further up
@@ -207,6 +201,10 @@ def main():
 
     # Used to redirect stdout to screen if not saving to file
     output_file_object = None
+
+    # If no username is specified, we will prompt at runtime
+    if not args.username:
+        args.password = input("SSH Username: ")
 
     # If no password is specified, we will prompt at runtime
     if not args.password:
@@ -225,13 +223,13 @@ def main():
     # Registering date/time for use in filenames
     date_time = datetime.strftime(datetime.now(), "%Y-%m-%d_%Hh%Mm%S")
 
-    # Connect to each device, run the commands and print the output
-    for ip_address in list_ip_addresses:
-        logging.info(f"[+] Initializing network driver for {ip_address}")
+    # Connect to each host, run the commands and print the output
+    for host in list_of_hosts:
+        logging.info(f"[+] Initializing network driver for {host}")
         try:
             # Create Scrapli network driver object and open SSH channel
             conn = Scrapli(
-                host = ip_address,
+                host = host,
                 port = int(args.port), 
                 auth_username = args.username, 
                 auth_password = args.password, 
@@ -244,14 +242,14 @@ def main():
                 timeout_socket = 10,
                 timeout_transport = 10
                 )
-            print(f"[+] Opening connection to {ip_address}")
+            print(f"[+] Opening connection to {host}")
             conn.open()
         except Exception as e:
             print(f"[!] Error: {str(e)}")
             with open(f"netrun_failed_{date_time}.txt", "a") as f:
-                f.write(ip_address + "\n")
+                f.write(host + "\n")
             continue
-        print(f"[+] Successfully connected and authenticated to {ip_address}")
+        print(f"[+] Successfully connected and authenticated to {host}")
 
         # If saving is enabled, build the output path and filename
         if args.save:
@@ -259,31 +257,31 @@ def main():
             if args.output_directory:
                 save_dir = args.output_directory.format(
                     date_time=date_time, 
-                    ip_address=ip_address, 
+                    host=host, 
                     username=args.username
                     )
                 if not os.path.exists(save_dir):
                     os.makedirs(save_dir, exist_ok=True)
             else:
                 save_dir = os.getcwd()
-            filename = os.path.join(save_dir, f"netrun_output_{ip_address}_{date_time}.txt")
+            filename = os.path.join(save_dir, f"netrun_output_{host}_{date_time}.txt")
             if not args.separate_output:
                 output_file_object = open(filename, "w")
             logging.info(f"[+] Output will be saved to {filename}")
 
-        # If we use autodeploy, we'll load the commands from a text file names <ip_address>_autodeploy.txt
+        # If we use autodeploy, we'll load the commands from a text file names <host>_autodeploy.txt
         if args.autodeploy:
-            filename = f"{ip_address}_autodeploy.txt"
+            filename = f"{host}_autodeploy.txt"
             if os.path.exists(filename):
                 with open(filename, "r") as f:
                     commands = [ line.rstrip() for line in f.readlines() if line.strip() ]
                     logging.info(f"[+] Successfully loaded autodeploy commands from {filename}")
             else:
-                logging.warn("[!] No autodeploy file found. Skipping device.")
+                logging.warn("[!] No autodeploy file found. Skipping host.")
                 continue
 
         # Run all commands sequentially
-        logging.info(f"[+] Sending commands to device")
+        logging.info(f"[+] Sending commands to host")
         for c in commands:
             now = datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M:%S")
             response = conn.send_command(c)
@@ -291,13 +289,13 @@ def main():
                 # Note: whitespaces in the command will be replaced by dashes
                 filename = os.path.join(
                     save_dir, 
-                    f"{ip_address}_{c.replace(' ', '-')}_{now}.txt"
+                    f"{host}_{c.replace(' ', '-')}_{now}.txt"
                     )
                 output_file_object = open(filename, "w")
                 print(response.result, file=output_file_object)
                 print(f"[+] Saving output of '{c}' to {filename}")
             else:
-                print(f"[{now}] {ip_address}: Output of command \'{c}\' \
+                print(f"[{now}] {host}: Output of command \'{c}\' \
                     \n{response.result}\n", file=output_file_object)
                 if args.save:
                     print(f"[+] Saving output of '{c}' to {filename}")

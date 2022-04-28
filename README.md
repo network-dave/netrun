@@ -27,8 +27,7 @@ See ```netrun.py --help``` for a complete list of command-line arguments.
 
 
 ## Device file ##
-- No hostnames, only IP addresses!
-- The file does not need to be formatted in any specific way, all IP addresses will be extracted (items starting with "255." will be ignored)
+- One hostname/IP address per line
 
 ## SSH configuration file
 
@@ -37,15 +36,15 @@ By default, Netrun uses the system's SSH as transport mecanism. The system and t
 ## Examples
 
 ```shell
-$ python netrun.py -d 172.16.10.10,172.16.10.11 -u johndoe -c show version
+$ python netrun.py -h 172.16.10.10,172.16.10.11 -u johndoe -c show version
 
-$ python netrun.py -D my_switches.txt -C show_commands.txt -u johndoe -p C00lp4$$ -n -sSO ./netrun_output/
+$ python netrun.py -H my_switches.txt -C show_commands.txt -u johndoe -p C00lp4$$ -n -sSo ./netrun_output/
 ```
 
 
 ## License
 
-Copyright (C) 2020 David Paneels
+Copyright (C) 2022 David Paneels
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
