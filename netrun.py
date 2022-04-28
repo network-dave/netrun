@@ -240,7 +240,8 @@ def main():
                 transport = TRANSPORT,
                 platform = "cisco_iosxe",
                 timeout_socket = 10,
-                timeout_transport = 10
+                timeout_transport = 10,
+                transport_options = {"open_cmd": ["-o", "KexAlgorithms=+diffie-hellman-group1-sha1"]}
                 )
             print(f"[+] Opening connection to {host}")
             conn.open()
