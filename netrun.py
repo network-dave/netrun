@@ -219,8 +219,11 @@ def main():
         privilege_level = "privilege_exec"    
         # If no enable password is set, we will use the user password
         if not args.enable_password:
-            logging.info(f"[+] No enable secret has been specified, using the user password")
-            args.enable_password = args.password
+            if os.environ.get("NETRUN_ENABLE"):
+                args.enable_password = os.environ.get("NETRUN_ENABLE")
+            else:
+                logging.info(f"[+] No enable secret has been specified, using the user password")
+                args.enable_password = args.password
 
     # Registering date/time for use in filenames
     date_time = datetime.strftime(datetime.now(), "%Y-%m-%d_%Hh%Mm%S")
