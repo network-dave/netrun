@@ -42,7 +42,21 @@ def parse_arguments():
 
     # hosts arguments
     arg_group_hosts = parser.add_argument_group(
-        title="host(s)"
+        title="Host(s)"
+        )
+    arg_group_hosts.add_argument(
+        "-t",
+        "--transport", 
+        metavar="<system|telnet|...>",
+        help="transport mechanism (default=system SSH)",
+        default="system"
+        )
+    arg_group_hosts.add_argument(
+        "-q",
+        "--platform", 
+        metavar="<platform>",
+        help="network OS platform (default=cisco_iosxe)",
+        default="cisco_iosxe"
         )
     arg_host = arg_group_hosts.add_mutually_exclusive_group(
         required=True
@@ -62,9 +76,8 @@ def parse_arguments():
     arg_group_hosts.add_argument(
         "-P",
         "--port",
-        help="SSH port (default=22)",
-        metavar="<port>",
-        default="22"
+        help="host port (default=22)",
+        metavar="<port>"
         )
     
     # Command arguments
@@ -225,6 +238,13 @@ def main():
                 logging.info(f"[+] No enable secret has been specified, using the user password")
                 args.enable_password = args.password
 
+    # Define SSH/Telnet default TCP port
+    if not args.port:
+        if args.transport == "telnet":
+            args.port = 23
+        else:
+            args.port = 22
+
     # Registering date/time for use in filenames
     date_time = datetime.strftime(datetime.now(), "%Y-%m-%d_%Hh%Mm%S")
 
@@ -301,7 +321,7 @@ def main():
                 print(response.result, file=output_file_object)
                 print(f"[+] Saving output of '{c}' to {filename}")
             else:
-                print(f"[{now}] {host}: Output of command \'{c}\' \
+                print(f"[{now}] {host}: Output of command \'{c}\': \
                     \n{response.result}\n", file=output_file_object)
                 if args.save:
                     print(f"[+] Saving output of '{c}' to {filename}")
