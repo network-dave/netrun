@@ -1,6 +1,6 @@
 # Netrun
 
-Netrun is a small tool aimed at easily interacting with network devices from the command-line.
+Netrun is a small tool aimed at easily interacting with network devices from the command line.
 
 ## Requirements / Getting Started
 
