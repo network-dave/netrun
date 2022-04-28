@@ -4,9 +4,10 @@
 
 netrun.py - Run commands on network hosts from the command line
 
-Usage: use --help for help
+Description:    This script allows you to run commands on network devices via SSH/Telnet directly from the command line
+Author:         David Paneels
+Usage:          use <script> --help for help
 
-Author: David Paneels
 
 '''
 
@@ -24,9 +25,6 @@ from scrapli import Scrapli
 DELIMITER = ","
 
 
-# Define SSH transport type for Scrapli driver 
-TRANSPORT = "system"
-
 
 def parse_arguments():
     '''
@@ -40,7 +38,7 @@ def parse_arguments():
         add_help=False
         )
 
-    # hosts arguments
+    # Hosts arguments
     arg_group_hosts = parser.add_argument_group(
         title="Host(s)"
         )
@@ -262,8 +260,8 @@ def main():
                 auth_strict_key = False,
                 ssh_config_file = True,
                 default_desired_privilege_level = privilege_level,
-                transport = TRANSPORT,
-                platform = "cisco_iosxe",
+                transport = args.transport,
+                platform = args.transport,
                 timeout_socket = 10,
                 timeout_transport = 10,
                 transport_options = {"open_cmd": ["-o", "KexAlgorithms=+diffie-hellman-group1-sha1"]}
