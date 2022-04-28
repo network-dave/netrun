@@ -261,7 +261,7 @@ def main():
                 ssh_config_file = True,
                 default_desired_privilege_level = privilege_level,
                 transport = args.transport,
-                platform = args.transport,
+                platform = args.platform,
                 timeout_socket = 10,
                 timeout_transport = 10,
                 transport_options = {"open_cmd": ["-o", "KexAlgorithms=+diffie-hellman-group1-sha1"]}
