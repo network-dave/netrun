@@ -2,6 +2,7 @@
 
 Netrun is a small tool aimed at easily interacting with network devices from the command line.
 
+
 ## Requirements / Getting Started
 
 ```shell
@@ -9,7 +10,7 @@ $ pip install -r requirements.txt
 ```
 
 ```shell
-$ python netrun.py -u <username> -p <password> -d <device> -c <command> [...]
+$ python netrun.py -u <username> -p <password> -i <host1,host2,host3> -c <command1,command2> [...]
 ```
 
 
@@ -18,6 +19,7 @@ $ python netrun.py -u <username> -p <password> -d <device> -c <command> [...]
 See ```netrun.py --help``` for a complete list of command-line arguments.
 
 - Hosts and commands can be specified at the command-line or loaded from a text file
+- Commands can be loaded either from a single text file (send same commands to each host), or from a "<host>_netrun_autodeploy.txt" file unique to each host (send unique commands to each host)
 - When loading hosts from a text file, put a single hostname or IP address per line
 - Usernames and passwords can be specified at the command line or loaded from the following environment variables: NETRUN_USERNAME, NETRUN_PASSWORD, NETRUN_ENABLE
 - If no username/passwords are specified at all, they will be prompted at runtime

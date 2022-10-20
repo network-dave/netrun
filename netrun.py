@@ -39,16 +39,16 @@ def parse_arguments():
         add_help=False
         )
 
-    # Hosts arguments
+    # Host inventory arguments
     arg_group_hosts = parser.add_argument_group(
-        title="Host(s)"
+        title="Host inventory"
         )
     arg_group_hosts.add_argument(
         "-t",
         "--transport", 
         metavar="<system|telnet|...>",
         help="transport mechanism (default=system SSH)",
-        default="system"
+        default="ssh2"
         )
     arg_group_hosts.add_argument(
         "-q",
@@ -61,14 +61,14 @@ def parse_arguments():
         required=True
         )
     arg_host.add_argument(
-        "-h",
-        "--host", 
-        metavar="<hostname-or-ip>",
-        help="IP address(es) of the host(s) to connect to (provide multiple separated by commas)"
+        "-i",
+        "--inventory", 
+        metavar="<hostname-or-ip-addres>",
+        help="IP address(es) of the host(s) to connect to (provide multiple hosts separated by commas)"
         )
     arg_host.add_argument(
-        "-H",
-        "--hosts-file",
+        "-I",
+        "--inventory-file",
         metavar="<filename>",
         help="text file containing a list of hostnames/IP addresses"
         )
@@ -90,7 +90,7 @@ def parse_arguments():
         "-c",
         "--commands",
         metavar="<command>",
-        help="command(s) to execute (provide multiple separated by commas)",
+        help="command(s) to execute (provide multiple commands separated by commas)",
         nargs="*"
         )
     arg_commands.add_argument(
@@ -101,7 +101,7 @@ def parse_arguments():
         )
     arg_commands.add_argument(
         "--autodeploy",
-        help="load commands from file <host>_autodeploy.txt for each host", 
+        help="load commands from file <host>_netrun_autodeploy.txt for each host", 
         action="store_true"
         )
 
@@ -128,7 +128,7 @@ def parse_arguments():
     arg_group_authentic.add_argument(
         "-n",
         "--no-enable",
-        help="do not go into enable mode",
+        help="do not go into enable mode after login",
         action="store_true"
         )
 
@@ -189,11 +189,11 @@ def main():
 
     # Get list of hosts from file or CLI
     logging.info("[+] Parsing host list")
-    if args.hosts_file:
-        with open(args.hosts_file) as f:
+    if args.inventory_file:
+        with open(args.inventory_file) as f:
             list_of_hosts = f.readlines()
     else:
-        list_of_hosts = args.host.split(",")
+        list_of_hosts = args.inventory.split(",")
     logging.info(f"[+] Found hosts: {','.join(list_of_hosts)}")
 
     # Get commands from text file or arguments
@@ -249,6 +249,7 @@ def main():
 
     # Connect to each host, run the commands and print the output
     for host in list_of_hosts:
+        host = host.strip()
         logging.info(f"[+] Initializing network driver for {host}")
         try:
             # Create Scrapli network driver object and open SSH channel
@@ -263,18 +264,23 @@ def main():
                 default_desired_privilege_level = privilege_level,
                 transport = args.transport,
                 platform = args.platform,
-                timeout_socket = 10,
-                timeout_transport = 10,
-                transport_options = {"open_cmd": ["-o", "KexAlgorithms=+diffie-hellman-group1-sha1"]}
+                timeout_socket = 15,
+                timeout_transport = 15,
+                transport_options = {"open_cmd": [
+                    "-o", 
+                    "KexAlgorithms=+diffie-hellman-group1-sha1,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1",
+                    "-o",
+                    "Ciphers=+aes128-ctr,aes192-ctr,aes256-ctr,aes128-cbc,3des-cbc,3des-cbc,aes192-cbc,aes256-cbc"
+                    ]}
                 )
-            logging.warning(f"[+] Opening connection to {host}")
+            logging.warning(f"[+] Connecting to host {host}")
             conn.open()
         except Exception as e:
             logging.fatal(f"[!] Error: {str(e)}")
             with open(f"netrun_failed_{date_time}.txt", "a") as f:
                 f.write(host + "\n")
             continue
-        logging.warning(f"[+] Successfully connected and authenticated to {host}")
+        logging.info(f"[+] Successfully connected and authenticated to {host}")
 
         # If saving is enabled, build the output path and filename
         if args.save:
@@ -294,9 +300,9 @@ def main():
                 output_file_object = open(filename, "w")
             logging.info(f"[+] Output will be saved to {filename}")
 
-        # If we use autodeploy, we'll load the commands from a text file names <host>_autodeploy.txt
+        # If we use autodeploy, we'll load the commands from a text file named <host>_netrun_autodeploy.txt
         if args.autodeploy:
-            filename = f"{host}_autodeploy.txt"
+            filename = f"{host}_netrun_autodeploy.txt"
             if os.path.exists(filename):
                 with open(filename, "r") as f:
                     commands = [ line.rstrip() for line in f.readlines() if line.strip() ]
