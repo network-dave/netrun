@@ -30,15 +30,15 @@ See ```netrun.py --help``` for a complete list of command-line arguments.
 
 ## SSH configuration file
 
-By default, Netrun uses the system's SSH as transport mecanism (through the `scrapli[system]` package). The system and the user's SSH config is loaded like with a regular SSH command, which means and configuration like hosts and options (for example ProxyCommand) can be used.
+By default, Netrun uses LIBSSH2 as transport as it is the only crossplatform library. Under POSIX systems (Windows is not supported), the system SSH can be used as transport mecanism instead. The SSH config files will be loaded like with the regular SSH CLI, which means any configuration like hosts and options (for example ProxyCommand) can be used.
 
 
 ## Quick Examples
 
 ```shell
-$ python netrun.py -h 172.16.10.10,172.16.10.11 -u johndoe -c show version
+$ python netrun.py -i 172.16.10.10,172.16.10.11 -u johndoe -c show version
 
-$ python netrun.py -H my_switches.txt -C show_commands.txt -u johndoe -p C00lp4$$ -n -sSo ./netrun_output/
+$ python netrun.py -I my_switches.txt -C show_commands.txt -u johndoe -p C00lp4$$ -n -sSo ./netrun_output/
 ```
 
 
