@@ -30,7 +30,7 @@ See ```netrun.py --help``` for a complete list of command-line arguments.
 
 ## SSH configuration file
 
-By default, Netrun uses LIBSSH2 as transport as it is the only crossplatform library. Under POSIX systems (Windows is not supported), the system SSH can be used as transport mecanism instead. The SSH config files will be loaded like with the regular SSH CLI, which means any configuration like hosts and options (for example ProxyCommand) can be used.
+By default, Netrun uses LIBSSH2 as transport as it is the only crossplatform library. On POSIX systems (Windows is not supported), the system SSH can be used as transport mecanism instead. The SSH config files will be loaded like with the regular SSH CLI, which means any configuration like hosts and options (for example ProxyCommand) can be used.
 
 
 ## Quick Examples
