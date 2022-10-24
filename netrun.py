@@ -25,6 +25,10 @@ from scrapli import Scrapli
 # Used to split username/password lists
 DELIMITER = ","
 
+# Used to fill separator lines
+SEPARATOR = "-"
+SEPARATOR_SIZE = 120
+
 
 
 def parse_arguments():
@@ -311,6 +315,12 @@ def main():
                 logging.warn("[!] No autodeploy file found. Skipping host.")
                 continue
 
+        # Print header for host output
+        # print(f"----".ljust(SEPARATOR_SIZE, SEPARATOR), file=output_file_object)
+        print(file=output_file_object)
+        print(f"***** {host} ".ljust(SEPARATOR_SIZE, "*"), file=output_file_object)
+        # print(f"-----".ljust(SEPARATOR_SIZE, SEPARATOR), file=output_file_object)
+        
         # Run all commands sequentially
         logging.info(f"[+] Sending commands to host")
         for c in commands:
@@ -326,8 +336,13 @@ def main():
                 print(response.result, file=output_file_object)
                 logging.warning(f"[+] Saving output of '{c}' to {filename}")
             else:
-                print(f"[{now}] {host}: Output of command \'{c}\': \
-                    \n{response.result}\n", file=output_file_object)
+                print(file=output_file_object)
+                print(f"-----".ljust(SEPARATOR_SIZE, SEPARATOR), file=output_file_object)
+                print(f"[{now}] {host}: Output of command \'{c}\':", file=output_file_object)
+                print(f"-----".ljust(SEPARATOR_SIZE, SEPARATOR), file=output_file_object)
+                print(f"{response.result}", file=output_file_object)
+                #print(f"-----".ljust(SEPARATOR_SIZE, SEPARATOR), file=output_file_object)
+
                 if args.save:
                     logging.warning(f"[+] Saving output of '{c}' to {filename}")
 
