@@ -1,50 +1,75 @@
 # Netrun
 
-Netrun is a small tool aimed at easily interacting with network devices from the command line.
+## Introduction
+
+```netrun``` is an easy-to-use tool to run commands on network devices from the command line.
 
 
-## Requirements / Getting Started
+## Getting Started
 
 ```shell
 $ pip install -r requirements.txt
 ```
 
 ```shell
-$ python netrun.py -u <username> -p <password> -i <host1,host2,host3> -c <command1,command2> [...]
+$ python3 netrun.py -u <username> -p <password> -i <host1,host2,host3> -c <command1,command2> [...]
 ```
 
+## When to (not) use netrun
 
-## Usage
+Use netrun when you need to quickly run a number of CLI commands on network devices, and print the output to the terminal or save it to text files. You can either specify the hosts at the command line or read them from a simple text file, no inventory file required.
 
-See ```netrun.py --help``` for a complete list of command-line arguments.
+If you need complex inventories, multithreading, or complex runtime logic with safeguards included, use ```Ansible``` instead.
 
-- Hosts and commands can be specified at the command-line or loaded from a text file
-- Commands can be loaded either from a single text file (send same commands to each host), or from a "<host>_netrun_autodeploy.txt" file unique to each host (send unique commands to each host)
-- When loading hosts from a text file, put a single hostname or IP address per line
-- Usernames and passwords can be specified at the command line or loaded from the following environment variables: NETRUN_USERNAME, NETRUN_PASSWORD, NETRUN_ENABLE
-- If no username/passwords are specified at all, they will be prompted at runtime
-- By default, enable mode is entered after login. Use '-n' to avoid going into enable mode and stay in exec mode (quicker for show commands)
-- When connecting to a host fails, it's hostname/IP is appended to the 'netrun_failed_<date-time>.txt' file
-- Timeout for socket and transport operations is set to 10 seconds
+If you need the above things but in pure Python, use ```Nornir``` instead.
 
 
-## SSH configuration file
+## But why ?
 
-By default, Netrun uses LIBSSH2 as transport as it is the only crossplatform library. On POSIX systems (Windows is not supported), the system SSH can be used as transport mecanism instead. The SSH config files will be loaded like with the regular SSH CLI, which means any configuration like hosts and options (for example ProxyCommand) can be used.
+Becase I needed something simple for my day-to-day routine as a network engineer, where I could not install Ansible or did not want to start building inventory files, and needed more flexibility.
+
+Because the code is very simple and readable so you can adapt it to your own needs, because it is cross-platform, contained in a single file, and requires no specific setup except installing the required Python libraries.
+
+Because it will run on any system where Python3.7+ is installed, Windows, Mac and Linux. 
+
+And as long as you know how to install Python libraries offline, it makes a convenient tool for air-gapped systems with no Internet access, or where you can't deploy a full blown network automation platform.
 
 
-## Quick Examples
+## How does it work
+
+Initially based on Netmiko, netrun now uses ```Scrapli``` under the hood. All ```netrun``` is doing is providing a command-line wrapper around Scrapli, with a couple of opiniated choices about how to provide the host information and the commands to run against them, which ciphers to use, and how to handle the output.
+
+
+## Can I use my SSH configuration file?
+
+By default, ```netrun```  uses ```libssh2``` as transport as it is the only crossplatform library so far. On POSIX systems (Windows is not supported), the system SSH can be used as transport mecanism instead. The SSH config files will be loaded like with the regular SSH CLI, which means any configuration like hosts and options (for example ProxyCommand) can be used.
+
+
+## A few examples
+
 
 ```shell
-$ python netrun.py -i 172.16.10.10,172.16.10.11 -u johndoe -c show version
+$ python3 netrun.py -i '172.16.10.10,172.16.10.11' -u johndoe -c 'show version| i Serial'
 
-$ python netrun.py -I my_switches.txt -C show_commands.txt -u johndoe -p C00lp4$$ -n -sSo ./netrun_output/
+$ python3 netrun.py -I my_switches.txt -C show_commands.txt -u johndoe -p C00lp4$$ -n -sSo ./Switches
 ```
+See ```python3 netrun.py --help``` for a complete set of options.
+
+## Notes
+
+- Hosts and commands can be specified at the command-line or loaded from text files
+- Commands can be loaded either from a single text file (use it to send the same commands to each host), or from a "netrun_deploy_<host>.txt" file unique to each host (use this to send unique commands to each host)
+- When loading hosts from a text file, put a single hostname or IP address per line
+- Usernames and passwords can be specified at the command line or loaded from the following environment variables: NETRUN_USERNAME, NETRUN_PASSWORD, NETRUN_ENABLE ***(UNSAFE)***
+- If no username/passwords are specified at all, they will be prompted at runtime
+- By default, enable mode is entered after login. Use '-n' to avoid going into enable mode and stay in exec mode (this is quicker to run show commands)
+- When connecting to a host fails, it's hostname/IP is appended to the 'netrun_failed_<date-time>.txt' file
+- Default timeout for socket and transport operations is set to 10 seconds
 
 
 ## License
 
-Copyright (C) 2022 David Paneels
+©️ 2022 David Paneels
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

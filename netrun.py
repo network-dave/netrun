@@ -55,7 +55,7 @@ def parse_arguments():
         default="ssh2"
         )
     arg_group_hosts.add_argument(
-        "-q",
+        "-x",
         "--platform", 
         metavar="<platform>",
         help="network OS platform (default=cisco_iosxe)",
@@ -77,7 +77,6 @@ def parse_arguments():
         help="text file containing a list of hostnames/IP addresses"
         )
     arg_group_hosts.add_argument(
-        "-P",
         "--port",
         help="host port (default=22)",
         metavar="<port>"
@@ -104,8 +103,8 @@ def parse_arguments():
         help="text file containing a list of commands"
         )
     arg_commands.add_argument(
-        "--autodeploy",
-        help="load commands from file <host>_netrun_autodeploy.txt for each host", 
+        "--deploy",
+        help="load commands from file netrun_deploy_<host>.txt for each host", 
         action="store_true"
         )
 
@@ -149,7 +148,7 @@ def parse_arguments():
     third_arg_group.add_argument(
         "-S",
         "--separate-output",
-        help="save the output of each command to a different text file",
+        help="save the output of each command to a different text file (1 file per command)",
         action="store_true"
         )
     third_arg_group.add_argument(
@@ -204,8 +203,8 @@ def main():
     if args.commands_file:
         with open(args.commands_file, "r") as f:
             commands = [ line.rstrip() for line in f.readlines() if line.strip() ]
-    elif args.autodeploy:
-        # In case of autodeploy we will load the commands further up
+    elif args.deploy:
+        # In case of deploy mode we will load the commands further up
         pass
     else:
         # Build commands from the command-line arguments
@@ -304,23 +303,23 @@ def main():
                 output_file_object = open(filename, "w")
             logging.info(f"[+] Output will be saved to {filename}")
 
-        # If we use autodeploy, we'll load the commands from a text file named <host>_netrun_autodeploy.txt
-        if args.autodeploy:
-            filename = f"{host}_netrun_autodeploy.txt"
+        # If we use deploy mode, we'll load the commands from a text file named <host>_netrun_deploy.txt
+        if args.deploy:
+            filename = f"netrun_deploy_{host}.txt"
             if os.path.exists(filename):
                 with open(filename, "r") as f:
                     commands = [ line.rstrip() for line in f.readlines() if line.strip() ]
-                    logging.info(f"[+] Successfully loaded autodeploy commands from {filename}")
+                    logging.info(f"[+] Successfully loaded commands from {filename}")
             else:
-                logging.warn("[!] No autodeploy file found. Skipping host.")
+                logging.warn("[!] No netrun_deploy file found for this host. Skipping to next one.")
                 continue
 
         # Print header for host output
-        # print(f"----".ljust(SEPARATOR_SIZE, SEPARATOR), file=output_file_object)
         print(file=output_file_object)
+        print(f"*****".ljust(SEPARATOR_SIZE, "*"), file=output_file_object)
         print(f"***** {host} ".ljust(SEPARATOR_SIZE, "*"), file=output_file_object)
-        # print(f"-----".ljust(SEPARATOR_SIZE, SEPARATOR), file=output_file_object)
-        
+        print(f"*****".ljust(SEPARATOR_SIZE, "*"), file=output_file_object)        
+
         # Run all commands sequentially
         logging.info(f"[+] Sending commands to host")
         for c in commands:
@@ -336,12 +335,11 @@ def main():
                 print(response.result, file=output_file_object)
                 logging.warning(f"[+] Saving output of '{c}' to {filename}")
             else:
-                print(file=output_file_object)
                 print(f"-----".ljust(SEPARATOR_SIZE, SEPARATOR), file=output_file_object)
                 print(f"[{now}] {host}: Output of command \'{c}\':", file=output_file_object)
                 print(f"-----".ljust(SEPARATOR_SIZE, SEPARATOR), file=output_file_object)
                 print(f"{response.result}", file=output_file_object)
-                #print(f"-----".ljust(SEPARATOR_SIZE, SEPARATOR), file=output_file_object)
+                print(file=output_file_object)
 
                 if args.save:
                     logging.warning(f"[+] Saving output of '{c}' to {filename}")
