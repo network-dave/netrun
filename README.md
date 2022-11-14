@@ -61,7 +61,7 @@ See ```python3 netrun.py --help``` for a complete set of options.
 - Usernames and passwords can be specified at the command line or loaded from the following environment variables: NETRUN_USERNAME, NETRUN_PASSWORD, NETRUN_ENABLE ***(UNSAFE)***
 - If no username/passwords are specified at all, they will be prompted at runtime
 - By default, enable mode is entered after login. Use '-n' to avoid going into enable mode and stay in exec mode (this is quicker to run show commands)
-- When connecting to a host fails, it's hostname/IP is appended to the 'netrun_failed_<date-time>.txt' file
+- When connecting to a host fails, it's hostname/IP is appended to the 'netrun_failed_{{timestamp}}.txt' file
 - Default timeout for socket and transport operations is set to 10 seconds
 
 
