@@ -24,7 +24,7 @@ If you need complex inventories, multithreading, or complex runtime logic with s
 If you need the above things but in pure Python, use ```Nornir``` instead.
 
 
-## But why ?
+## But why?
 
 Becayse I needed something simple for my day-to-day routine as a network engineer. Because sometimes you can't install Ansible, or want to start building inventory files, just to run a few "show" commands.
 
@@ -33,7 +33,7 @@ Because the code is simple and easy to read, because it is cross-platform, conta
 And as long as you know how to install Python libraries offline, it makes a convenient tool for air-gapped systems with no Internet access, or where you can't deploy a full blown network automation platform.
 
 
-## How does it work
+## How does it work?
 
 Initially based on Netmiko, netrun now uses ```Scrapli``` under the hood. All ```netrun``` is doing is providing a command-line wrapper around Scrapli, with a couple of opiniated choices about how to provide the host information and the commands to run against them, which ciphers to use, and how to handle the output.
 
@@ -43,17 +43,7 @@ Initially based on Netmiko, netrun now uses ```Scrapli``` under the hood. All ``
 By default, ```netrun```  uses ```libssh2``` as transport as it is the only crossplatform library so far. On POSIX systems (Windows is not supported), the system SSH can be used as transport mecanism instead. The SSH config files will be loaded like with the regular SSH CLI, which means any configuration like hosts and options (for example ProxyCommand) can be used.
 
 
-## A few examples
-
-
-```shell
-$ python3 netrun.py -i '172.16.10.10,172.16.10.11' -u johndoe -c 'show version| i Serial'
-
-$ python3 netrun.py -I my_switches.txt -C show_commands.txt -u johndoe -p C00lp4$$ -n -sSo ./Switches
-```
-See ```python3 netrun.py --help``` for a complete set of options.
-
-## Notes
+## Good to know
 
 - Hosts and commands can be specified at the command-line or loaded from text files
 - Commands can be loaded either from a single text file (use it to send the same commands to each host), or from a "netrun_deploy_<host>.txt" file unique to each host (use this to send unique commands to each host)
@@ -63,7 +53,17 @@ See ```python3 netrun.py --help``` for a complete set of options.
 - By default, enable mode is entered after login. Use '-n' to avoid going into enable mode and stay in exec mode (this is quicker to run show commands)
 - When connecting to a host fails, it's hostname/IP is appended to the 'netrun_failed_{{timestamp}}.txt' file
 - Default timeout for socket and transport operations is set to 10 seconds
+  
+  
+## A few examples
 
+
+```shell
+$ python3 netrun.py -i '172.16.10.10,172.16.10.11' -u johndoe -c 'show version| i Serial'
+
+$ python3 netrun.py -I my_switches.txt -C show_commands.txt -u johndoe -p C00lp4$$ -n -sSo ./Switches
+```
+See ```python3 netrun.py --help``` for a complete set of options.
 
 ## License
 
