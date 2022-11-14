@@ -26,11 +26,9 @@ If you need the above things but in pure Python, use ```Nornir``` instead.
 
 ## But why ?
 
-Becase I needed something simple for my day-to-day routine as a network engineer, where I could not install Ansible or did not want to start building inventory files, and needed more flexibility.
+Becayse I needed something simple for my day-to-day routine as a network engineer. Because sometimes you can't install Ansible, or want to start building inventory files, just to run a few "show" commands.
 
-Because the code is very simple and readable so you can adapt it to your own needs, because it is cross-platform, contained in a single file, and requires no specific setup except installing the required Python libraries.
-
-Because it will run on any system where Python3.7+ is installed, Windows, Mac and Linux. 
+Because the code is simple and easy to read, because it is cross-platform, contained in a single source file, and requires no specific setup except installing the required Python libraries. It will run on any system where Python3.7+ is installed, Windows, Mac and Linux. 
 
 And as long as you know how to install Python libraries offline, it makes a convenient tool for air-gapped systems with no Internet access, or where you can't deploy a full blown network automation platform.
 
