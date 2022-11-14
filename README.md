@@ -17,16 +17,16 @@ $ python3 netrun.py -u <username> -p <password> -i <host1,host2,host3> -c <comma
 
 ## When to (not) use netrun
 
-Use netrun when you need to quickly run a number of CLI commands on network devices, and print the output to the terminal or save it to text files. You can either specify the hosts at the command line or read them from a simple text file, no inventory file required.
+You can use ```netrun``` when you need to quickly run a number of CLI commands on a single or many network devices, and either print the output to the terminal or save it to text files. You can either specify the hosts at the command line or read a list of hosts from a text file, no inventory file needed.
 
 If you need complex inventories, multithreading, or complex runtime logic with safeguards included, use ```Ansible``` instead.
 
 If you need the above things but in pure Python, use ```Nornir``` instead.
 
 
-## But why?
+## OK but why?
 
-Becayse I needed something simple for my day-to-day routine as a network engineer. Because sometimes you can't install Ansible, or want to start building inventory files, just to run a few "show" commands.
+Because I needed something simple for my day-to-day routine as a network engineer. Because sometimes you can't install Ansible, or want to start building inventory files, just to run a few "show" commands.
 
 Because the code is simple and easy to read, because it is cross-platform, contained in a single source file, and requires no specific setup except installing the required Python libraries. It will run on any system where Python3.7+ is installed, Windows, Mac and Linux. 
 
@@ -35,7 +35,7 @@ And as long as you know how to install Python libraries offline, it makes a conv
 
 ## How does it work?
 
-Initially based on Netmiko, netrun now uses ```Scrapli``` under the hood. All ```netrun``` is doing is providing a command-line wrapper around Scrapli, with a couple of opiniated choices about how to provide the host information and the commands to run against them, which ciphers to use, and how to handle the output.
+Initially based on ```Netmiko```, netrun now uses ```Scrapli``` under the hood. All ```netrun``` is doing is providing a command-line wrapper around Scrapli, with a couple of opiniated choices about how to provide the host information and the commands to run against them, which ciphers to use, and how to handle the output.
 
 
 ## Can I use my SSH configuration file?
@@ -57,7 +57,6 @@ By default, ```netrun```  uses ```libssh2``` as transport as it is the only cros
   
 ## A few examples
 
-
 ```shell
 $ python3 netrun.py -i '172.16.10.10,172.16.10.11' -u johndoe -c 'show version| i Serial'
 
@@ -65,6 +64,7 @@ $ python3 netrun.py -I my_switches.txt -C show_commands.txt -u johndoe -p C00lp4
 ```
 See ```python3 netrun.py --help``` for a complete set of options.
 
+  
 ## License
 
 ©️ 2022 David Paneels
