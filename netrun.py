@@ -2,12 +2,13 @@
 
 '''
 
-netrun.py - Run commands on network hosts from the command line
----
+***********************************************************************************************************
+netrun.py
+***********************************************************************************************************
 
-Description:    This script allows you to run commands on network devices via SSH/Telnet directly from the command line
+Description:    Netrun allows you to run commands on network devices from the command line
 Author:         David Paneels
-Usage:          use <script> --help for help
+Usage:          see python3 netrun.py --help
 
 
 '''
@@ -136,22 +137,22 @@ def parse_arguments():
         )
 
     # Output arguments
-    third_arg_group = parser.add_argument_group(
-        title="Save output"
+    arg_group_output = parser.add_argument_group(
+        title="Output"
         )
-    third_arg_group.add_argument(
+    arg_group_output.add_argument(
         "-s",
         "--save",
         help="save the output to a text file (1 file per host)",
         action="store_true"
         )
-    third_arg_group.add_argument(
+    arg_group_output.add_argument(
         "-S",
         "--separate-output",
         help="save the output of each command to a different text file (1 file per command)",
         action="store_true"
         )
-    third_arg_group.add_argument(
+    arg_group_output.add_argument(
         "-o",
         "--output-directory",
         metavar="\b",
@@ -159,15 +160,15 @@ def parse_arguments():
         )
 
     # Misc options
-    fourth_arg_group = parser.add_argument_group(
+    arg_group_misc = parser.add_argument_group(
         title="Misc"
         )
-    fourth_arg_group.add_argument(
-        "--debug", 
-        help="show debugging output", 
+    arg_group_misc.add_argument(
+        "--verbose", 
+        help="display verbose debugging output", 
         action="store_true"
         )
-    fourth_arg_group.add_argument(
+    arg_group_misc.add_argument(
         "--help",
         help="display this message and exit",
         action="help"
@@ -185,7 +186,7 @@ def main():
     args = parse_arguments()
 
     # Initialize logging
-    if args.debug:
+    if args.verbose:
         logging.basicConfig(format="%(message)s", level=logging.DEBUG)
     else:
         logging.basicConfig(format="%(message)s", level=logging.WARNING)
