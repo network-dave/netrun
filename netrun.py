@@ -6,7 +6,7 @@
 netrun.py
 ***********************************************************************************************************
 
-Description:    Netrun allows you to run commands on network devices from the command line
+Description:    Run commands on network devices straight from the command line
 Author:         David Paneels
 Usage:          see python3 netrun.py --help
 
@@ -26,9 +26,8 @@ from scrapli import Scrapli
 # Used to split username/password lists
 DELIMITER = ","
 
-# Used to fill separator lines
-SEPARATOR = "-"
-SEPARATOR_SIZE = 120
+# Define the width of the separator lines
+SEPARATOR_WIDTH = 120
 
 
 
@@ -315,11 +314,11 @@ def main():
                 logging.warn("[!] No netrun_deploy file found for this host. Skipping to next one.")
                 continue
 
-        # Print header for host output
+        # Print separator header per host
         print(file=output_file_object)
-        print(f"*****".ljust(SEPARATOR_SIZE, "*"), file=output_file_object)
-        print(f"***** {host} ".ljust(SEPARATOR_SIZE, "*"), file=output_file_object)
-        print(f"*****".ljust(SEPARATOR_SIZE, "*"), file=output_file_object)        
+        print(f"*****".ljust(SEPARATOR_WIDTH, "*"), file=output_file_object)
+        print(f"***** {host} ".ljust(SEPARATOR_WIDTH, "*"), file=output_file_object)
+        print(f"*****".ljust(SEPARATOR_WIDTH, "*"), file=output_file_object)        
 
         # Run all commands sequentially
         logging.info(f"[+] Sending commands to host")
@@ -327,7 +326,7 @@ def main():
             now = datetime.strftime(datetime.now(), "%Y-%m-%d_%Hh%Mm%S")
             response = conn.send_command(c)
             if args.save and args.separate_output:
-                # Whitespaces in the command will be replaced by dashes
+                # Whitespaces in the command will be replaced by dashes in the filename
                 filename = os.path.join(
                     save_dir, 
                     f"{host}_{c.replace(' ', '-')}_{now}.txt"
@@ -336,9 +335,10 @@ def main():
                 print(response.result, file=output_file_object)
                 logging.warning(f"[+] Saving output of '{c}' to {filename}")
             else:
-                print(f"-----".ljust(SEPARATOR_SIZE, SEPARATOR), file=output_file_object)
+                # Print separator header per command
+                print(f"-----".ljust(SEPARATOR_WIDTH, "-"), file=output_file_object)
                 print(f"[{now}] {host}: Output of command \'{c}\':", file=output_file_object)
-                print(f"-----".ljust(SEPARATOR_SIZE, SEPARATOR), file=output_file_object)
+                print(f"-----".ljust(SEPARATOR_WIDTH, "-"), file=output_file_object)
                 print(f"{response.result}", file=output_file_object)
                 print(file=output_file_object)
 
