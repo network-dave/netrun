@@ -26,7 +26,7 @@ from scrapli import Scrapli
 # Used to split username/password lists
 DELIMITER = ","
 
-# Define the width of the separator lines
+# Define the width of separator lines in headers
 SEPARATOR_WIDTH = 120
 
 
