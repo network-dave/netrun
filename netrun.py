@@ -285,6 +285,24 @@ def main():
             continue
         logging.info(f"[+] Successfully connected and authenticated to {host}")
 
+        # If we use deploy mode, we'll load the commands from a text file named <host>_netrun_deploy.txt
+        if args.deploy:
+            filename = f"netrun_deploy_{host}.txt"
+            if os.path.exists(filename):
+                with open(filename, "r") as f:
+                    commands = [ line.rstrip() for line in f.readlines() if line.strip() ]
+                    logging.info(f"[+] Successfully loaded commands from {filename}")
+            else:
+                logging.warn("[!] No netrun_deploy file found for this host. Skipping to next one.")
+                continue
+
+        # If saving and separate outputs are not enabled, print separator header per host
+        if not args.save and not args.separate_output:
+            print(file=output_file_object)
+            print(f"*****".ljust(SEPARATOR_WIDTH, "*"), file=output_file_object)
+            print(f"***** {host} ".ljust(SEPARATOR_WIDTH, "*"), file=output_file_object)
+            print(f"*****".ljust(SEPARATOR_WIDTH, "*"), file=output_file_object)        
+
         # If saving is enabled, build the output path and filename
         if args.save:
             logging.info(f"[+] Setting output directory")
@@ -303,23 +321,6 @@ def main():
                 output_file_object = open(filename, "w")
             logging.info(f"[+] Output will be saved to {filename}")
 
-        # If we use deploy mode, we'll load the commands from a text file named <host>_netrun_deploy.txt
-        if args.deploy:
-            filename = f"netrun_deploy_{host}.txt"
-            if os.path.exists(filename):
-                with open(filename, "r") as f:
-                    commands = [ line.rstrip() for line in f.readlines() if line.strip() ]
-                    logging.info(f"[+] Successfully loaded commands from {filename}")
-            else:
-                logging.warn("[!] No netrun_deploy file found for this host. Skipping to next one.")
-                continue
-
-        # Print separator header per host
-        print(file=output_file_object)
-        print(f"*****".ljust(SEPARATOR_WIDTH, "*"), file=output_file_object)
-        print(f"***** {host} ".ljust(SEPARATOR_WIDTH, "*"), file=output_file_object)
-        print(f"*****".ljust(SEPARATOR_WIDTH, "*"), file=output_file_object)        
-
         # Run all commands sequentially
         logging.info(f"[+] Sending commands to host")
         for c in commands:
@@ -332,18 +333,16 @@ def main():
                     f"{host}_{c.replace(' ', '-')}_{now}.txt"
                     )
                 output_file_object = open(filename, "w")
-                print(response.result, file=output_file_object)
-                logging.warning(f"[+] Saving output of '{c}' to {filename}")
-            else:
-                # Print separator header per command
-                print(f"-----".ljust(SEPARATOR_WIDTH, "-"), file=output_file_object)
-                print(f"[{now}] {host}: Output of command \'{c}\':", file=output_file_object)
-                print(f"-----".ljust(SEPARATOR_WIDTH, "-"), file=output_file_object)
-                print(f"{response.result}", file=output_file_object)
-                print(file=output_file_object)
 
-                if args.save:
-                    logging.warning(f"[+] Saving output of '{c}' to {filename}")
+            if args.save:
+                logging.warning(f"[+] Saving output of '{c}' to {filename}")
+
+            # Print separator header per command
+            print(f"-----".ljust(SEPARATOR_WIDTH, "-"), file=output_file_object)
+            print(f"[{now}] {host}: Output of command \'{c}\':", file=output_file_object)
+            print(f"-----".ljust(SEPARATOR_WIDTH, "-"), file=output_file_object)
+            print(f"{response.result}", file=output_file_object)
+            print(file=output_file_object)
 
         # Close the output file handler and close the connection
         if output_file_object:
